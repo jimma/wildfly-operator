@@ -8,7 +8,7 @@ GOOS=${1-linux}
 BIN_DIR=${2-$(pwd)/build/_output/bin}
 mkdir -p ${BIN_DIR}
 PROJECT_NAME="wildfly-operator"
-REPO_PATH="github.com/wildfly/wildfly-operator"
+REPO_PATH="github.com/jimma/wildfly-operator"
 BUILD_PATH="${REPO_PATH}/cmd/manager"
 VERSION="$(git describe --tags --always --dirty)"
 GO_LDFLAGS="-X ${REPO_PATH}/version.Version=${VERSION}"
