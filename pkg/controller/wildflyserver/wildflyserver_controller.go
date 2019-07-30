@@ -411,50 +411,59 @@ func (r *ReconcileWildFlyServer) statefulSetForWildFly(w *wildflyv1alpha1.WildFl
 	standaloneConfigMap := w.Spec.StandaloneConfigMap
 	if len(standaloneConfigMap) > 0 {
 		log.Info("Store standalone configuration from configmap", standaloneConfigMap)
-		//ConfigMapVolumeSource can only access with 644 mode (https://github.com/kubernetes/kubernetes/issues/62099)
-		//Use a InitContainer and EmptyDir volume to copy these ReadOnly files to /wildfly/standalone/configuration folder
-		//It says k8s 1.12 will enable a RW ConfigMapVolumeSource and we can directly mount this to container[0]
-		//(https://github.com/kubernetes/kubernetes/issues/62099#issuecomment-416584906)
-		statefulSet.Spec.Template.Spec.InitContainers = append(statefulSet.Spec.Template.Spec.InitContainers, corev1.Container{
-			Name:    "chmod-config-dir",
-			Image:   "busybox",
-			Command: []string{"cp", "-R", "/tmp/configmap/.", "/tmp/wildflyconfig"},
-		})
-		statefulSet.Spec.Template.Spec.Volumes = append(statefulSet.Spec.Template.Spec.Volumes, corev1.Volume{
-			Name: "standalone-config-tmp",
-			VolumeSource: v1.VolumeSource{
-				ConfigMap: &v1.ConfigMapVolumeSource{
-					LocalObjectReference: v1.LocalObjectReference{
-						Name: standaloneConfigMap,
+		keyPath := []v1.KeyToPath{}
+		keyPath, err := r.getKeyPath(w, keyPath)
+		if err != nil {
+			log.Error(err, "Failed to read key/path from configmap")
+		} else {
+			if len(keyPath) > 0 {
+				statefulSet.Spec.Template.Spec.Volumes = append(statefulSet.Spec.Template.Spec.Volumes, corev1.Volume{
+					Name: "standalone-config-volume",
+					VolumeSource: v1.VolumeSource{
+						ConfigMap: &v1.ConfigMapVolumeSource{
+							LocalObjectReference: v1.LocalObjectReference{
+								Name: standaloneConfigMap,
+							},
+						},
 					},
-				},
-			},
-		})
-		statefulSet.Spec.Template.Spec.InitContainers[0].VolumeMounts = append(statefulSet.Spec.Template.Spec.InitContainers[0].VolumeMounts, corev1.VolumeMount{
-			Name:      "standalone-config-tmp",
-			MountPath: "/tmp/configmap",
-		})
-		statefulSet.Spec.Template.Spec.Volumes = append(statefulSet.Spec.Template.Spec.Volumes, corev1.Volume{
-			Name: "standalone-config-volume",
-			VolumeSource: corev1.VolumeSource{
-				EmptyDir: &corev1.EmptyDirVolumeSource{},
-			},
-		})
-		statefulSet.Spec.Template.Spec.InitContainers[0].VolumeMounts = append(statefulSet.Spec.Template.Spec.InitContainers[0].VolumeMounts, corev1.VolumeMount{
-			Name:      "standalone-config-volume",
-			MountPath: "/tmp/wildflyconfig",
-		})
+				})
+				for _, v := range keyPath {
 
-		statefulSet.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulSet.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
-			Name:      "standalone-config-volume",
-			MountPath: "/wildfly/standalone/configuration",
-		})
+					statefulSet.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulSet.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+						Name:      "standalone-config-volume",
+						MountPath: "/wildfly/standalone/configuration/" + v.Path,
+						SubPath:   v.Path,
+					})
+				}
+			} else {
+				log.Info("Ignore this configmap and there is no configuration files found")
+			}
+		}
 
 	}
 
 	// Set WildFlyServer instance as the owner and controller
 	controllerutil.SetControllerReference(w, statefulSet, r.scheme)
 	return statefulSet
+}
+func (r *ReconcileWildFlyServer) getKeyPath(w *wildflyv1alpha1.WildFlyServer, keypath []v1.KeyToPath) ([]v1.KeyToPath, error) {
+	config := &corev1.ConfigMap{}
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: w.Spec.StandaloneConfigMap, Namespace: w.Namespace}, config)
+	if err != nil {
+		return keypath, nil
+	}
+	for k := range config.Data {
+		//ConfigMapVolumeSource can be only accessed with 644 mode (https://github.com/kubernetes/kubernetes/issues/62099)
+		//Wildfly server writes back to logging.properites when it starts and filter out this file
+		if k != "logging.properties" {
+			keypath = append(keypath, v1.KeyToPath{Key: k, Path: k})
+		}
+	}
+	for k := range config.BinaryData {
+		keypath = append(keypath, v1.KeyToPath{Key: k, Path: k})
+	}
+	return keypath, nil
+
 }
 
 // loadBalancerForWildFly returns a loadBalancer service
