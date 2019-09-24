@@ -18,7 +18,7 @@ spec:
           image: quay.io/wildfly/wildfly-operator:latest
           command:
           - wildfly-operator
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: WATCH_NAMESPACE
               valueFrom:
