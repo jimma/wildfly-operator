@@ -1,6 +1,6 @@
 DOCKER_REPO ?= quay.io/
 IMAGE ?= wildfly/wildfly-operator
-TAG ?= latest
+TAG ?= 0.0.1
 PROG  := wildfly-operator
 
 .PHONY: dep build image push run clean help
