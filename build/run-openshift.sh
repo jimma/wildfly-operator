@@ -4,4 +4,3 @@ tar xvzOf openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz > oc.
 sudo mv oc.bin /usr/local/bin/oc
 sudo chmod 755 /usr/local/bin/oc
 sudo oc cluster up --skip-registry-check=true
-oc login -u system:admin
