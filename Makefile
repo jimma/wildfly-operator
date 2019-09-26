@@ -1,6 +1,6 @@
 DOCKER_REPO ?= quay.io/
 IMAGE ?= wildfly/wildfly-operator
-TAG ?= 0.0.1
+TAG ?= latest
 PROG  := wildfly-operator
 
 .PHONY: dep build image push run clean help
@@ -26,7 +26,7 @@ build: tidy unit-test
 
 ## image            Create the Docker image of the operator
 image: build
-	docker build -t "${DOCKER_REPO}$(IMAGE):$(TAG)" build -f build/Dockerfile
+	docker build -t "${DOCKER_REPO}$(IMAGE):$(TAG)" . -f build/Dockerfile
 
 ## push             Push Docker image to the Quay.io repository.
 push: image
