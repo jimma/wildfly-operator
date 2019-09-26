@@ -27,9 +27,9 @@ build: tidy unit-test
 ## image            Create the Docker image of the operator
 image: build
 	docker build -t "${DOCKER_REPO}$(IMAGE):$(TAG)" . -f build/Dockerfile
-	docker save "${DOCKER_REPO}$(IMAGE):$(TAG)" > /tmp/wildfly-operator.tar
-	docker exec openshift-master docker load < /tmp/wildfly-operator.tar
-	docker exec openshift-master docker ps
+	#docker save "${DOCKER_REPO}$(IMAGE):$(TAG)" > /tmp/wildfly-operator.tar
+	#docker exec openshift-master docker load < /tmp/wildfly-operator.tar
+	docker exec openshift-master docker image list
 
 ## push             Push Docker image to the Quay.io repository.
 push: image
