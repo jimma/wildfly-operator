@@ -19,7 +19,8 @@ before_install:
   - cd $HOME/gopath/src/github.com/wildfly/wildfly-operator
 
 before_script:
-  - ci/start-okd-4.0.0.sh
+#  - ci/start-okd-4.0.0.sh
+   - make run-openshift
 
 after_failure:
   - docker ps -a
