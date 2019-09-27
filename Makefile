@@ -27,7 +27,6 @@ build: tidy unit-test
 ## image            Create the Docker image of the operator
 image: build
 	docker build -t "${DOCKER_REPO}$(IMAGE):$(TAG)" . -f build/Dockerfile
-
 ## push             Push Docker image to the Quay.io repository.
 push: image
 	docker push "${DOCKER_REPO}$(IMAGE):$(TAG)"

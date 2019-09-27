@@ -20,6 +20,7 @@ before_install:
 
 before_script:
 #  - ci/start-okd-4.0.0.sh
+   - cd $HOME
    - make run-openshift
 
 after_failure:
@@ -27,7 +28,8 @@ after_failure:
   - for log in $(docker ps -qa | xargs); do docker logs --tail 500 $log; done
 
 script:
+  - cd $TRAVIS_BUILD_DIR
   - make image
   - make setup
 #- make test-e2e-16 KUBECONFIG=/tmp/openshift-dind-cluster/openshift/openshift.local.config/master/admin.kubeconfig
-  - make test-e2e-17 KUBECONFIG=openshift.local.clusterup/kube-apiserver/admin.kubeconfig
+  - make test-e2e-17 KUBECONFIG=$HOME/openshift.local.clusterup/kube-apiserver/admin.kubeconfig
