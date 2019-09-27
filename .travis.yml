@@ -20,8 +20,8 @@ before_install:
   - export OPENSHIFT_DIR=$HOME/openshift 
 before_script:
 #  - ci/start-okd-4.0.0.sh
-   - cd $OPENSHIFT_DIR
-   - $HOME/gopath/src/github.com/wildfly/wildfly-operator/build/run-openshift.sh
+  - cd $OPENSHIFT_DIR
+  - $HOME/gopath/src/github.com/wildfly/wildfly-operator/build/run-openshift.sh
 
 after_failure:
   - docker ps -a
