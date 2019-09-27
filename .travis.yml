@@ -4,10 +4,11 @@ go:
   - 1.12.x
 
 env:
-  - GO111MODULE=on
-  - OPENSHIFT_VERSION=3.11.0
-  - OPENSHIFT_COMMIT=0cbc58b
-  - OPENSHIFT_BIN=openshift-origin-client-tools-v${OPENSHIFT_VERSION}-${OPENSHIFT_COMMIT}-linux-64bit
+  global:
+    - GO111MODULE=on
+    - OPENSHIFT_VERSION=3.11.0
+    - OPENSHIFT_COMMIT=0cbc58b
+    - OPENSHIFT_BIN=openshift-origin-client-tools-v${OPENSHIFT_VERSION}-${OPENSHIFT_COMMIT}-linux-64bit
 services:
   - docker
 
