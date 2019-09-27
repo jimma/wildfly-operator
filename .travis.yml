@@ -5,7 +5,9 @@ go:
 
 env:
   - GO111MODULE=on
-
+  - OPENSHIFT_VERSION=3.11.0
+  - OPENSHIFT_COMMIT=0cbc58b
+  - OPENSHIFT_BIN=openshift-origin-client-tools-v${OPENSHIFT_VERSION}-${OPENSHIFT_COMMIT}-linux-64bit
 services:
   - docker
 
@@ -19,7 +21,6 @@ before_install:
   - mkdir -p $HOME/openshift
   - export OPENSHIFT_DIR=$HOME/openshift 
 before_script:
-#  - ci/start-okd-4.0.0.sh
   - cd $OPENSHIFT_DIR
   - $HOME/gopath/src/github.com/wildfly/wildfly-operator/build/run-openshift.sh
 
@@ -31,5 +32,5 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - make image
   - make setup
-#- make test-e2e-16 KUBECONFIG=/tmp/openshift-dind-cluster/openshift/openshift.local.config/master/admin.kubeconfig
+  - make test-e2e-16 KUBECONFIG=$OPENSHIFT_DIR/openshift.local.clusterup/kube-apiserver/admin.kubeconfig
   - make test-e2e-17 KUBECONFIG=$OPENSHIFT_DIR/openshift.local.clusterup/kube-apiserver/admin.kubeconfig
