@@ -16,12 +16,12 @@ before_install:
   - mkdir -p $HOME/gopath/src/github.com/wildfly/wildfly-operator
   - rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/wildfly/wildfly-operator
   - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/wildfly/wildfly-operator
-  - cd $HOME/gopath/src/github.com/wildfly/wildfly-operator
-
+  - mkdir -p $HOME/openshift
+  - export OPENSHIFT_DIR=$HOME/openshift 
 before_script:
 #  - ci/start-okd-4.0.0.sh
-   - cd $HOME
-   - make run-openshift
+   - cd $OPENSHIFT_DIR
+   - $HOME/gopath/src/github.com/wildfly/wildfly-operator/build/run-openshift.sh
 
 after_failure:
   - docker ps -a
@@ -32,4 +32,4 @@ script:
   - make image
   - make setup
 #- make test-e2e-16 KUBECONFIG=/tmp/openshift-dind-cluster/openshift/openshift.local.config/master/admin.kubeconfig
-  - make test-e2e-17 KUBECONFIG=$HOME/openshift.local.clusterup/kube-apiserver/admin.kubeconfig
+  - make test-e2e-17 KUBECONFIG=$OPENSHIFT_DIR/openshift.local.clusterup/kube-apiserver/admin.kubeconfig
