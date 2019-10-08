@@ -18,6 +18,9 @@ cache:
   - $GOPATH/pkg
 
 before_install:
+  - mkdir -p $HOME/gopath/src/github.com/wildfly/wildfly-operator
+  - rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/wildfly/wildfly-operator
+  - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/wildfly/wildfly-operator
   - mkdir -p $HOME/openshift
   - export OPENSHIFT_DIR=$HOME/openshift 
 
