@@ -12,7 +12,10 @@ services:
 cache:
   directories:
   - $GOPATH/pkg
-
+before_install:
+  - mkdir -p $HOME/gopath/src/github.com/wildfly/wildfly-operator
+  - rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/wildfly/wildfly-operator
+  - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/wildfly/wildfly-operator
 before_script:
   - ci/start-okd-4.0.0.sh
 
